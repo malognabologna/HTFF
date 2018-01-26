@@ -145,6 +145,16 @@ function previewFile(){
     <div id="welcome"></div>
     <div id="firebaseui-auth-container"></div>
     <section id="actualPage" style="display:none;">
+      <header id="sidebar">
+          <img src="#" height="200" width="200" id="profileimg">
+          <input type="file" onchange="previewFile()" id="files" style="display:none;" name="files[]" multiple/>
+          <div id="sidebar-info">
+            <h3>yoyoyo v1.12</h3>
+            <p>Got the Firebase Auth up and running.<br>Got the upload image situatation to update profile picture.<br>
+            Got the uploader to only show up when the image is clicked.<br><strong>ToDo</strong><br>
+            Obviously need to do everything else too.</p>
+          </div>
+      </header>
       <input type="file" onchange="previewFile()" id="files" style="display:none;" name="files[]" multiple/>
       <img src="#" height="50" width="50" id="profileimg">
       <h3>yoyoyo v1.12</h3>
