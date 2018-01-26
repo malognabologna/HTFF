@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+
+    <title>Hey</title>
+    <link rel="stylesheet" href="styles.css">
+<script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyC8GZZvC4Un8LSKJLY-ztdp801ll58WsJg",
+    authDomain: "hanoiteam-a8452.firebaseapp.com",
+    databaseURL: "https://hanoiteam-a8452.firebaseio.com",
+    projectId: "hanoiteam-a8452",
+    storageBucket: "hanoiteam-a8452.appspot.com",
+    messagingSenderId: "883372312449"
+  };
+  firebase.initializeApp(config);
+</script>
+
+<script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
+<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" />
+
+<script type="text/javascript">
+    // FirebaseUI config.
+    var uiConfig = {
+        callbacks: {
+          signInSuccess: function(currentUser, credential, redirectUrl) {
+            // User successfully signed in.
+            // Return type determines whether we continue the redirect automatically
+            // or whether we leave that to developer to handle.
+            initApp()
+            return console.log(true);
+          },
+          uiShown: function() {
+            // The widget is rendered.
+            // Hide the loader.
+            document.getElementById('loader').style.display = 'none';
+          }
+        },
+        // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
+        signInFlow: 'popup',
+        signInSuccessUrl: 'index2.html',
+        signInOptions: [
+          // Leave the lines as is for the providers you want to offer your users.
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ],
+        // Terms of service url.
+
+      };
+
+    // Initialize the FirebaseUI Widget using Firebase.
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    // The start method will wait until the DOM is loaded.
+    ui.start('#firebaseui-auth-container', uiConfig);
+    initApp = function() {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          // User is signed in.
+          var displayName = user.displayName;
+          var email = user.email;
+          var emailVerified = user.emailVerified;
+          var photoURL = user.photoURL;
+          var uid = user.uid;
+          var phoneNumber = user.phoneNumber;
+          var providerData = user.providerData;
+
+          user.getIdToken().then(function(accessToken) {
+            document.getElementById("actualPage").style.display = "block";
+            document.getElementById("welcome").innerHTML = '<h1>Welcome  ' + displayName + '</h1>';
+            if (photoURL != null) {
+              document.getElementById("profileimg").src=photoURL;
+            }
+            document.getElementById('sign-in-status').textContent = 'Signed in';
+            document.getElementById('sign-in').textContent = 'Sign out';
+            document.getElementById('account-details').textContent = JSON.stringify({
+              displayName: displayName,
+              email: email,
+              emailVerified: emailVerified,
+              phoneNumber: phoneNumber,
+              photoURL: photoURL,
+              uid: uid,
+              accessToken: accessToken,
+              providerData: providerData
+            }, null, '  ');
+          });
+        } else {
+          // User is signed out.
+          document.getElementById('sign-in-status').textContent = 'Signed out';
+          document.getElementById('sign-in').textContent = 'Sign in';
+          document.getElementById('account-details').textContent = 'null';
+        }
+      }, function(error) {
+        console.log(error);
+      });
+    };
+//function to save file
+function previewFile(){
+  var storage = firebase.storage();
+
+  var file = document.getElementById("files").files[0];
+    console.log(file);
+  
+  var storageRef = firebase.storage().ref();
+  
+  //dynamically set reference to the file name
+  var thisRef = storageRef.child(file.name);
+
+
+  //put request upload file to firebase storage
+  thisRef.put(file).then(function(snapshot) {
+    var url = snapshot.downloadURL;
+    var user = firebase.auth().currentUser;
+    var photoUrl;
+    console.log(snapshot.downloadURL);
+    console.log('Uploaded a blob or file!');
+    document.getElementById("files").style.display="none";
+    if(user != null) {
+      user.updateProfile({
+        photoURL: url
+      }).then(function() {
+        document.getElementById("profileimg").src=url;
+      }).catch(function(error) {
+        console.log(error);
+      });
+    }
+  });
+}
+</script>
+<script>
+  $(document).ready(function(){
+    $("#profileimg").click(function(){
+        alert("The image was clicked.");
+        document.getElementById("files").style.display="block";
+    });
+});
+</script>
+</head>
+
+<body>
+        
+    <!---->
+    <div id="welcome"></div>
+    <div id="firebaseui-auth-container"></div>
+    <section id="actualPage" style="display:none;">
+      <input type="file" onchange="previewFile()" id="files" style="display:none;" name="files[]" multiple/>
+      <img src="#" height="50" width="50" id="profileimg">
+      <h3>yoyoyo v1.12</h3>
+      <p>Got the Firebase Auth up and running.<br>Got the upload image situatation to update profile picture.<br>
+    Got the uploader to only show up when the image is clicked.<br><strong>ToDo</strong><br>
+    Obviously need to do everything else too.</p>
+    </section>
+</body>
+</html>
