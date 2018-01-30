@@ -66,10 +66,10 @@
 
           user.getIdToken().then(function(accessToken) {
             document.getElementById("actualPage").style.display = "block";
-            document.getElementById("displayName").innerHTML = displayName;
-            updateHeight();
+            document.getElementById("welcome").innerHTML = '<h1>Welcome  ' + displayName + '</h1>';
             if (photoURL != null) {
               document.getElementById("profileimg").src=photoURL;
+              document.getElementById("displayName").innerHTML = displayName;
             }
             document.getElementById('sign-in-status').textContent = 'Signed in';
             document.getElementById('sign-in').textContent = 'Sign out';
@@ -134,43 +134,21 @@ function previewFile(){
         document.getElementById("files").style.display="block";
     });
 });
-  $(document).load(updateHeight);
-  $(window).ready(updateHeight);
-  $(window).resize(updateHeight);
-
-  function updateHeight()
-  {
-      var div = $('#dynamicHeight');
-      var width = div.width();
-      console.log("this code is running");
-      div.css('height', width);
-  }
-
 </script>
 </head>
+
 <body>
         
     <!---->
-    <div id="firebaseui-auth-container"></div>
-    
-    <section id="actualPage" style="display:none;">
-      <div id="topBar">
-        <nav class="menus">
-          <ul>
-            <li>Home</li>
-            <li>Reimbursement History</li>
-            <li>New Reimbursement</li>
-            <li>Chat?</li>
-          </ul>
-        </nav>
-      </div>
+    <div id="welcome"></div>
+    <!-- <div id="firebaseui-auth-container"></div>
+    -->
+    <section id="actualPage"> <!--style="display:none;"-->
       <header id="sidebar">
-          <div id="dynamicHeight">  
-            <img src="#" id="profileimg" height="100" width="100">
-            <h2 id="displayName"></h2>
-          </div>
+          <img src="https://firebasestorage.googleapis.com/v0/b/hanoiteam-a8452.appspot.com/o/NinjaCatRecon.gif?alt=media&token=cf141c8b-36bb-48b4-8a5b-d553a15063a4" 
+           id="profileimg">
           <input type="file" onchange="previewFile()" id="files" style="display:none;" name="files[]" multiple/>
-          
+          <h2 id="displayName"></h2>
           <div id="sidebar-info">
             <h3>yoyoyo v1.20</h3>
             <p>Got the Firebase Auth up and running.<br>Got the upload image situatation to update profile picture.<br>
