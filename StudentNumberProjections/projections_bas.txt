@@ -1,0 +1,147 @@
+Attribute VB_Name = "Module1"
+Sub iterate()
+Dim rowCnt As Long
+Dim dataCnt As Long
+Dim resArray()
+Dim sumArray(1 To 12, 1 To 20, 1 To 1)
+Dim dataArray()
+'========================================'
+'| This program assumes the data in the active sheet |
+'| is stored: Unit, Student#, StartDate, UnitLength    |
+'| If stored any other way, the program will not have |
+'| access to the data                                                      |
+'========================================'
+
+rowCnt = ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row - 1
+Debug.Print rowCnt
+For i = 1 To rowCnt
+    If Sheets("Sheet3").Cells(i + 1, 1) = 0 Or Sheets("Sheet3").Cells(i + 1, 2) = "Closed" Or Sheets("Sheet3").Cells(i + 1, 1) = "" Then
+        GoTo nextIteration
+    Else
+    dataCnt = dataCnt + 1
+    End If
+nextIteration:
+Next
+Debug.Print dataCnt
+
+ReDim resArray(1 To rowCnt, 1 To 6, 1 To 3)
+ReDim dataArray(1 To rowCnt, 1 To 4)
+
+
+'------Populate Data Array------'
+For i = 1 To rowCnt
+    If Sheets("Sheet3").Cells(i + 1, 1) = 0 Or Sheets("Sheet3").Cells(i + 1, 2) = "Closed" Or Sheets("Sheet3").Cells(i + 1, 1) = "" Then
+        GoTo nextIt
+    Else
+    '    counter = counter + 1
+    '    For k = 1 To dataCnt
+        For j = 1 To 4
+            dataArray(i, j) = ActiveSheet.Cells(i + 1, j)
+        Next
+    '    Next
+    End If
+nextIt:
+Next
+'Debug.Print counter
+
+'------End Populate Data Array------'
+'------Populate Results Array------'
+'This section populates the resultArray for each class'
+For i = 1 To rowCnt 'This is ClassID (rowNumber)
+    If Sheets("Sheet3").Cells(i + 1, 1) = 0 Or Sheets("Sheet3").Cells(i + 1, 2) = "Closed" Or Sheets("Sheet3").Cells(i + 1, 1) = "" Then
+        GoTo nextIter
+    Else
+        For j = 1 To 6 'This is the iteration of UnitLength
+            For k = 1 To 3 'This is columnNumber (1=unit 2=studentNumber 3=startDate)
+                If j = 1 Then
+                    'resArray(i, j, k) = dataArray(i, k)
+                    resArray(i, j, k) = ActiveSheet.Cells(i + 1, k)
+                Else
+                    If k = 1 Then
+                        'resArray(i, j, k) = dataArray(i, k) + (j - 1)
+                        resArray(i, j, k) = ActiveSheet.Cells(i + 1, k) + (j - 1)
+                    Else
+                        If k = 2 Then
+                            'resArray(i, j, k) = dataArray(i, k)
+                            resArray(i, j, k) = ActiveSheet.Cells(i + 1, k)
+                        Else
+                            'resArray(i, j, k) = DateAdd("d", dataArray(i, 4) * (j - 1), dataArray(i, k))
+                            resArray(i, j, k) = DateAdd("d", ActiveSheet.Cells(i + 1, 4) * (j - 1), ActiveSheet.Cells(i + 1, k))
+                        End If
+                    End If
+                End If
+            Next
+        Next
+    End If
+nextIter:
+Next
+'------End Populate Results Array------'
+
+'------Populate Summary Array------'
+For q = 1 To 12 'looping through every month
+    For l = 1 To 20 'looping through unit numbers
+        For i = 1 To rowCnt 'looping through classes
+            For j = 1 To 6 'looping through unitLength iterations
+                'For k = 1 To 3 'looping through data for each iteration (unit,stu#,date)
+                '    If k = 2 Then 'if data point is stu#, then if date falls within range>sum
+                        If resArray(i, j, 1) = l And Month(resArray(i, j, 3)) = q Then
+                            sumArray(q, l, 1) = sumArray(q, l, 1) + resArray(i, j, 2)
+                        End If
+                '    End If
+                'Next
+            Next
+        Next
+    Next
+Next
+'------End Populate Summary Array------'
+
+'------Start Print Summary Array to Sheet------'
+For q = 1 To 12 'looping through every month
+    Sheets("Sheet2").Cells(q + 1, 1) = MonthName(q, True)
+    For l = 1 To 20 'looping through unit numbers
+        Sheets("Sheet2").Cells(1, l + 1) = "Unit " & l
+        Sheets("Sheet2").Cells(q + 1, l + 1) = sumArray(q, l, 1)
+    Next
+Next
+'------End Print Summary Array------'
+
+'------Start Print Unit Iterations------'
+' This section really ought to be tailored a little,
+' at this point, it prints every iteration for each class
+' more than 8,000 cells. So it takes a long time.
+If MsgBox("Do you want to print unit iterations?", vbYesNo) = vbYes Then
+    For i = 1 To rowCnt
+        For j = 1 To 6
+            For k = 1 To 3
+                If k = 1 Then
+                    Sheets("Sheet4").Cells(i, (3 * j) - 2) = resArray(i, j, k)
+                Else
+                    If k = 2 Then
+                        Sheets("Sheet4").Cells(i, (3 * j) - 1) = resArray(i, j, k)
+                    Else
+                        Sheets("Sheet4").Cells(i, (3 * j)) = resArray(i, j, k)
+                    End If
+                End If
+            Next
+        Next
+    Next
+End If
+'------End unit iteration------'
+
+
+'---Start String concatenation to test if loops make what we want
+'              this section will get deleted once the section that will
+'              insert the arrays to the spreadsheet is written.
+'For i = 1 To 12
+'ystring = ystring & "%month:" & i & " "
+'For j = 1 To 20
+'ystring = ystring & "%Unit " & j & " -" & sumArray(i, j, 1)
+'Next
+'Next
+'Debug.Print xString
+'Debug.Print ystring
+'---End Concatenation Section
+
+
+End Sub
+
